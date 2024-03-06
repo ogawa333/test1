@@ -1,17 +1,21 @@
-var params = (new URL(document.location)).searchParams;
-var key = params.get('key');
+function doGet() {
+  // let html = HtmlService.createTemplateFromFile('index')
+  // return html.evaluate()
 
-$(function () {
-    // 送信
-    $('form').submit(function () {
-        var reasons = $('textarea[name="reasons"]').val();
-        // var date = $('input[name="date"]').val();
-        // var tool = $('input[name="tool"]').val();
-        
-        //var msg = `${key}\n朝礼/終礼不参加の理由：${reasons}\n返信期限：${date}\n使用ツール：${tool}`;
-        var msg = `${key}\n理由：${reasons}`;
-        sendText(msg);
+  const user = Session.getActiveUser()
+  let html   = HtmlService.createTemplateFromFile('index')
+  html.email = user.getEmail()
 
-        return false;
-    });
-});
+  const SHEET = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('シート2')
+  const numColumn = SHEET.getLastColumn() // 最後列の列番号を取得
+  const numRow    = SHEET.getLastRow() -1 // 最後行の行番号を取得
+  const dataRange = SHEET.getRange(2, 1, numRow, numColumn)
+  const data = dataRange.getValues()
+  
+  html.data = data
+  html.flag = 0
+  console.log(data)
+  console.log(user.getEmail())
+  return html.evaluate()
+
+}
